@@ -9,12 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Initial project setup
-- Basic package structure
-- Command-line interface skeleton
-- Setup for PyPI distribution
+- Core markdown to code conversion functionality
+  - Support for multiple programming languages
+  - Automatic file naming based on language
+  - Directory structure creation from markdown
+  - Comment-based filename detection
+- Command-line interface
+- PyPI package structure
+- Executable script installation
 
 ### Changed
-- N/A
+- Integrated generate.py functionality into modular package structure
+- Standardized CLI interface
 
 ### Deprecated
 - N/A

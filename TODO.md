@@ -1,42 +1,45 @@
 # TODO List
 
 ## High Priority
-- [ ] Implement markdown parsing functionality
-- [ ] Add code block extraction logic
-- [ ] Create file generation system
-- [ ] Add support for multiple programming languages
-- [ ] Write comprehensive tests
+- [ ] Add test suite for core functionality
+- [ ] Improve error handling and user feedback
+- [ ] Add support for custom file naming patterns
+- [ ] Create comprehensive documentation with examples
+- [ ] Add validation for markdown structure
 
 ## Medium Priority
-- [ ] Add configuration file support
-- [ ] Implement custom template system
-- [ ] Add progress bar for processing
-- [ ] Create detailed documentation
-- [ ] Add logging system
+- [ ] Add configuration file support for default settings
+- [ ] Implement dry-run mode
+- [ ] Add support for file overwrite protection
+- [ ] Implement verbose logging mode
+- [ ] Add support for custom templates
 
 ## Low Priority
-- [ ] Add syntax highlighting in CLI output
-- [ ] Create web interface
-- [ ] Support for batch processing
-- [ ] Add plugin system
-- [ ] Create GitHub Actions workflow
+- [ ] Add colored output in CLI
+- [ ] Create web interface for file conversion
+- [ ] Support for batch processing multiple markdown files
+- [ ] Add plugin system for custom language support
+- [ ] Create GitHub Actions workflow for automated testing
 
 ## Documentation
-- [ ] Write API documentation
-- [ ] Create usage examples
+- [ ] Write detailed API documentation
+- [ ] Create usage examples for common scenarios
 - [ ] Add contributing guidelines
 - [ ] Create development setup guide
+- [ ] Document supported language defaults
 
 ## Testing
-- [ ] Set up test framework
-- [ ] Write unit tests
-- [ ] Add integration tests
-- [ ] Create test documentation
+- [ ] Set up pytest framework
+- [ ] Write unit tests for converter module
+- [ ] Add integration tests for CLI
+- [ ] Create test fixtures and examples
 - [ ] Set up CI/CD pipeline
 
 ## Future Features
 - [ ] Support for custom markdown extensions
-- [ ] Interactive mode
-- [ ] Code formatting options
-- [ ] Export to different formats
-- [ ] Version control integration
+- [ ] Interactive mode for conflict resolution
+- [ ] Code formatting integration
+- [ ] Export to different project structures
+- [ ] Support for version control initialization
+- [ ] Add support for multiple markdown files as input
+- [ ] Create project templates for common frameworks
