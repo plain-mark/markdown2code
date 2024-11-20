@@ -103,8 +103,13 @@ class MarkdownConverter:
         if not line:
             return False
         
-        # ATX headings (# Heading) but not file comments
-        if re.match(r'^#+\s+(?!filename:)(?![a-zA-Z0-9_\-]+/|[a-zA-Z0-9_\-]+\.[a-zA-Z0-9]+)', line):
+        # Check if line contains a valid file path
+        stripped = line.lstrip('#').strip()
+        if cls.is_valid_filename(stripped):
+            return False
+            
+        # ATX headings (# Heading)
+        if re.match(r'^#+\s+(?!filename:)', line):
             return True
             
         return False
@@ -113,10 +118,6 @@ class MarkdownConverter:
     def extract_filename_from_line(cls, line):
         """Extract filename from a line."""
         if not line:
-            return None
-
-        # Skip markdown headings (but not file comments)
-        if cls.is_markdown_heading(line):
             return None
 
         # Skip code blocks
@@ -130,6 +131,12 @@ class MarkdownConverter:
             filename = explicit_match.group(1).strip()
             if cls.is_valid_filename(filename):
                 return filename
+
+        # Check for file path in comment
+        if line.strip().startswith('#'):
+            potential_path = line.lstrip('#').strip()
+            if cls.is_valid_filename(potential_path):
+                return potential_path
 
         return None
 
