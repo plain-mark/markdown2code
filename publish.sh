@@ -27,7 +27,9 @@ fi
 
 # Update version in setup.py
 VERSION_SETUP=$(python setup.py --version)
-sed -i "s/$VERSION_SETUP/$VERSION_CHANGELOG/" setup.py
+#sed -i "s/$VERSION_SETUP/$VERSION_CHANGELOG/" setup.py
+#sed -i "s/$VERSION_SETUP/$VERSION_CHANGELOG/" setup.cfg
+sed -i "s/$VERSION_SETUP/$VERSION_CHANGELOG/" markdown2code/__init__.py
 
 ./git.sh
 
