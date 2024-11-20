@@ -457,3 +457,9 @@ cd todo-app
 npm install
 npm start
 ```
+```bash
+pip install -e . && python -m markdown2code server --host localhost --port 5000
+python -m markdown2code server --host localhost --port 5000
+markdown2code server --host localhost --port 5001 --output test_output
+markdown2code server --host localhost --port 5000
+```

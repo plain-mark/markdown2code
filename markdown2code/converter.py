@@ -78,18 +78,19 @@ class MarkdownConverter:
             # First try to get filename from the header
             filename = None
             if header:
-                # Check if header contains a file path
-                if './' in header or '/' in header or '\\' in header:
-                    filename = header.strip()
+                # Remove "filename:" prefix if present
+                if 'filename:' in header:
+                    filename = header.split('filename:', 1)[1].strip()
                 else:
-                    # Check if it's in format "filename: path/to/file.ext"
-                    filename_match = re.match(r'filename:\s*(.*)', header)
-                    if filename_match:
-                        filename = filename_match.group(1).strip()
+                    filename = header.strip()
 
             # If no filename in header, try to get it from content comments
             if not filename:
                 filename = self.extract_filename_from_comments(content)
+                if filename:
+                    # Remove "filename:" prefix if present in extracted filename
+                    if filename.startswith('filename:'):
+                        filename = filename.split('filename:', 1)[1].strip()
 
             # Use default patterns if no filename found
             if not filename and language:

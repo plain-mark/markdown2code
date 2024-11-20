@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.1] - 2024-11-20
+
+### Fixed
+- Directory structure handling in file paths
+  - Properly creates nested directories from file paths
+  - Correctly extracts paths from code block headers
+  - Fixed handling of "filename:" prefix in paths
+  - Improved directory creation before file writing
+
 ## [2.3.0] - 2024-11-20
 
 ### Added

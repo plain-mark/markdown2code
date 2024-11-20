@@ -8,6 +8,7 @@ from . import __version__
 from .converter import MarkdownConverter
 from .config import Config
 from .backup import GitBackup
+from .web import run_server
 
 def setup_logging(config):
     """Setup logging based on configuration and CLI options."""
@@ -118,6 +119,12 @@ def main():
     convert_parser.add_argument('--config', '-c', help='Path to custom configuration file')
     convert_parser.add_argument('--create-config', action='store_true', help='Create default configuration file')
 
+    # Server command
+    server_parser = subparsers.add_parser('server', help='Start web interface')
+    server_parser.add_argument('--host', default='localhost', help='Host to bind to (default: localhost)')
+    server_parser.add_argument('--port', type=int, default=5000, help='Port to listen on (default: 5000)')
+    server_parser.add_argument('--output', '-o', default='uploads', help='Output directory for converted files (default: uploads)')
+
     # Backup commands
     backup_parser = subparsers.add_parser('backup', help='Backup operations')
     backup_subparsers = backup_parser.add_subparsers(dest='backup_command', help='Backup commands')
@@ -166,8 +173,15 @@ def main():
 
         logger = setup_logging(config)
 
+        # Handle server command
+        if args.command == 'server':
+            logger.info(f"Starting web interface at http://{args.host}:{args.port}")
+            logger.info(f"Output directory: {args.output}")
+            run_server(host=args.host, port=args.port, output_dir=args.output)
+            return 0
+
         # Handle backup commands
-        if args.command == 'backup':
+        elif args.command == 'backup':
             return handle_backup_commands(args, logger)
 
         # Handle convert command
