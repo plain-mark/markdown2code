@@ -560,3 +560,100 @@ Created files:
 2024-11-20 20:28:04,455 - markdown2code.converter - INFO - 
 Project structure created successfully!
 ```
+
+## How it works
+
+
+markdown2code solution that includes both a Firefox extension and a web interface for converting markdown content to code files.
+after starting server (and firefox plugin), we see 
+```bash
+markdown2code server
+```
+
+![1.png](img/1.png)
+
+### Firefox Extension 
+- A temporary extension called "Code Block Extractor"
+- Has a unique Extension ID and Internal UUID
+
+![2.png](img/2.png)
+![3.png](img/3.png)
+
+### Web Interface 
+- Shows a markdown2code web interface where users can enter markdown content
+- Has a conversion system that processes the input and creates multiple test files
+- Successfully creates test files including:
+  - tests/test_performance.py
+  - tests/test_storage.py
+  - tests/test_database.py
+
+![4.png](img/4.png)
+
+### Testing Framework 
+The system includes comprehensive tests in Polish language covering:
+- Performance tests (Testy wydajnościowe)
+  - Handling concurrent requests
+  - Processing large code blocks
+  - Algorithm performance testing
+- Storage tests (Testy przechowywania)
+  - File organization in directories
+  - Naming conventions
+  - File management
+- Database tests (Testy bazy danych)
+  - Schema verification
+  - Constraint testing
+  - Data integrity verification
+
+
+![5.png](img/5.png)
+
+### Code Structure 
+Shows the directory structure for storing code blocks:
+```
+code_blocks/
+├── discord/
+│   ├── python/
+│   ├── javascript/
+│   └── ...
+├── github/
+│   ├── python/
+│   └── ...
+└── ...
+```
+
+Each code block is stored in the appropriate directory with a unique filename containing a timestamp and hash.
+
+The system appears to be capable of:
+- Converting markdown to various code file formats
+- Organizing code blocks by platform (Discord, GitHub) and language
+- Maintaining test coverage across multiple aspects of the system
+- Providing both a browser extension and web interface for user interaction
+- Handling file conflicts and directory management
+- Supporting multiple programming languages (at least Python and JavaScript)
+
+The interface also shows some debugging output indicating successful conversions and file creation operations.
+
+
+![6.png](img/6.png)
+### Server Logs 
+- Timestamp: 2024-11-21 00:42:13.002
+- The markdown2code.converter.core created three test files:
+  - tests/test_database.py
+  - tests/test_performance.py
+  - tests/test_storage.py
+- A successful HTTP POST request to "/convert" endpoint (HTTP/1.1 200 response)
+- The project structure was created successfully
+- Server running on 127.0.0.1 (localhost)
+
+
+![7.png](img/7.png)
+### Generated Files Structure 
+In the "uploads" directory:
+- A "tests" folder containing:
+  - test_database.py
+  - test_performance.py
+  - test_storage.py
+  - project.md
+
+This shows that the markdown2code server successfully processed the input and generated the corresponding Python test files
+based on the markdown content that was copied and pasted into the system. 
