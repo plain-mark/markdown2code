@@ -1,5 +1,14 @@
 # markdown2code
 
+                       _       _                     ___               _      
+                      | |     | |                   |__ \             | |     
+  _ __ ___   __ _ _ __| | ____| | _____      ___ __    ) |___ ___   __| | ___ 
+ | '_ ` _ \ / _` | '__| |/ / _` |/ _ \ \ /\ / / '_ \  / // __/ _ \ / _` |/ _ \
+ | | | | | | (_| | |  |   < (_| | (_) \ V  V /| | | |/ /| (_| (_) | (_| |  __/
+ |_| |_| |_|\__,_|_|  |_|\_\__,_|\___/ \_/\_/ |_| |_|____\___\___/ \__,_|\___|
+                                                                              
+                                                                              
+
 Convert markdown files into organized project structures with code files. This tool extracts code blocks from markdown files and creates a proper directory structure with the corresponding source files.
 
 ## Features
