@@ -10,36 +10,6 @@
 
 Convert markdown files into organized project structures with code files. This tool is particularly useful for converting code snippets from AI chat conversations (like ChatGPT, Claude, etc.) into actual project files.
 
-## Table of Contents
-
-- [Features](#features)
-- [Installation](#installation)
-- [Quick Start](#quick-start)
-- [Use Cases](#use-cases)
-  - [AI Chat Development](#ai-chat-development-sessions)
-  - [Documentation to Implementation](#documentation-to-implementation)
-  - [Tutorial Creation](#tutorial-creation)
-  - [Project Templates](#project-templates)
-- [Configuration](#configuration)
-  - [Default Configuration](#default-configuration)
-  - [Custom Configuration](#custom-configuration)
-  - [File Patterns](#file-patterns)
-- [Command Line Options](#command-line-options)
-- [Markdown Format](#markdown-format)
-  - [Code Blocks](#code-blocks)
-  - [File Names](#file-names)
-  - [Directory Structure](#directory-structure)
-- [Examples](#examples)
-  - [React Todo App](#react-todo-app-example)
-  - [Python Script](#python-script-from-chat)
-  - [Configuration Files](#configuration-files-from-chat)
-- [Development](#development)
-  - [Setup](#development-setup)
-  - [Testing](#running-tests)
-  - [Contributing](#contributing)
-- [Troubleshooting](#troubleshooting)
-- [License](#license)
-
 ## Features
 
 - Extracts code blocks from markdown files
