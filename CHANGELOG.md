@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.0] - 2024-01-09
+
+### Added
+- Enhanced file path validation and handling
+- Improved directory structure creation
+- Added robust backup functionality with Git integration
+- Enhanced logging system with configurable levels
+- Extended comment pattern detection
+
+### Improved
+- More reliable file content extraction
+- Better handling of empty lines and whitespace
+- Smarter detection of file markers in markdown
+
 ## [2.6.0] - 2024-11-20
 
 ### Added
