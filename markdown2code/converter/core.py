@@ -14,6 +14,8 @@ class MarkdownConverter:
         self.input_file = input_file
         self.output_dir = output_dir
         self.config = config or Config()
+        # Create input file directory if it doesn't exist
+        ensure_directory(self.input_file)
         self._setup_logging()
 
     def _setup_logging(self):
@@ -41,6 +43,9 @@ class MarkdownConverter:
     def preview(self):
         """Preview what files will be generated without creating them."""
         try:
+            # Create input file directory if it doesn't exist
+            ensure_directory(self.input_file)
+            
             with open(self.input_file, 'r', encoding='utf-8') as f:
                 content = f.read()
 
@@ -101,6 +106,9 @@ class MarkdownConverter:
             )
 
         try:
+            # Create input file directory if it doesn't exist
+            ensure_directory(self.input_file)
+            
             with open(self.input_file, 'r', encoding='utf-8') as f:
                 content = f.read()
 
