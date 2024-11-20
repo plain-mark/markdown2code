@@ -9,6 +9,27 @@ from .converter import MarkdownConverter
 from .config import Config
 from .backup import GitBackup
 
+def restore_last_backup(directory, logger):
+    """Restore the most recent backup."""
+    backup = GitBackup(directory)
+    last_backup = backup.get_last_backup()
+    
+    if not last_backup:
+        logger.error("No backups found")
+        return 1
+        
+    try:
+        files = backup.restore_backup(last_backup)
+        logger.info(f"Restored {len(files)} files from last backup: {last_backup}")
+        logger.info("\nRestored files:")
+        for file in files:
+            logger.info(f"- {file}")
+        return 0
+    except Exception as e:
+        logger.error(f"Failed to restore backup: {str(e)}")
+        return 1
+
+
 def setup_logging(config):
     """Setup logging based on configuration and CLI options."""
     log_config = config.get_logging_config()
@@ -93,6 +114,7 @@ def main():
     convert_parser.add_argument('--preview', '-p', action='store_true', help='Preview files to be created without making changes')
     convert_parser.add_argument('--force', '-f', action='store_true', help='Force overwrite of existing files')
     convert_parser.add_argument('--backup', '-b', action='store_true', help='Create backup before making changes')
+    convert_parser.add_argument('--restore', '-r', action='store_true', help='Restore from last backup')
     convert_parser.add_argument('--verbose', '-v', action='store_true', help='Enable verbose output')
     convert_parser.add_argument('--config', '-c', help='Path to custom configuration file')
     convert_parser.add_argument('--create-config', action='store_true', help='Create default configuration file')
@@ -151,6 +173,10 @@ def main():
 
         # Handle convert command
         elif args.command == 'convert':
+            # Handle restore flag first
+            if args.restore:
+                return restore_last_backup(args.output, logger)
+            
             converter = MarkdownConverter(args.markdown_file, args.output, config)
             
             if args.preview:
