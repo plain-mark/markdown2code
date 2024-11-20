@@ -3,40 +3,25 @@ Core functionality for converting markdown to code files
 """
 import os
 import re
+import logging
 from pathlib import Path
-
-DEFAULT_FILENAMES = {
-    'javascript': 'script.js',
-    'js': 'script.js',
-    'python': 'script.py',
-    'py': 'script.py',
-    'css': 'styles.css',
-    'html': 'index.html',
-    'java': 'Main.java',
-    'cpp': 'main.cpp',
-    'c': 'main.c',
-    'sql': 'query.sql',
-    'php': 'index.php',
-    'ruby': 'script.rb',
-    'go': 'main.go',
-    'rust': 'main.rs',
-    'typescript': 'script.ts',
-    'ts': 'script.ts',
-    'yaml': 'config.yml',
-    'yml': 'config.yml',
-    'json': 'config.json',
-    'xml': 'config.xml',
-    'markdown': 'README.md',
-    'md': 'README.md',
-    'bash': 'script.sh',
-    'sh': 'script.sh',
-    'dockerfile': 'Dockerfile'
-}
+from .config import Config
 
 class MarkdownConverter:
-    def __init__(self, input_file, output_dir='.'):
+    def __init__(self, input_file, output_dir='.', config=None):
         self.input_file = input_file
         self.output_dir = output_dir
+        self.config = config or Config()
+        self._setup_logging()
+
+    def _setup_logging(self):
+        """Setup logging based on configuration."""
+        log_config = self.config.get_logging_config()
+        logging.basicConfig(
+            level=getattr(logging, log_config['level'].upper()),
+            format=log_config['format']
+        )
+        self.logger = logging.getLogger(__name__)
 
     @staticmethod
     def extract_filename_from_comments(content):
@@ -87,17 +72,23 @@ class MarkdownConverter:
 
             if not filename and language:
                 language = language.lower()
-                if language in DEFAULT_FILENAMES:
-                    base_name = DEFAULT_FILENAMES[language]
+                patterns = self.config.get_file_patterns(language)
+                if patterns:
+                    base_name = patterns[0]  # Use first pattern as default
                     if base_name in file_counter:
                         file_counter[base_name] += 1
                         name, ext = os.path.splitext(base_name)
-                        filename = f"{name}_{file_counter[base_name]}{ext}"
+                        # Try other patterns if available
+                        if len(patterns) > file_counter[base_name]:
+                            filename = patterns[file_counter[base_name]]
+                        else:
+                            filename = f"{name}_{file_counter[base_name]}{ext}"
                     else:
                         file_counter[base_name] = 0
                         filename = base_name
 
             if filename:
+                self.logger.debug(f"Extracted file content for: {filename}")
                 files_content[filename] = content
 
         return files_content
@@ -166,7 +157,7 @@ class MarkdownConverter:
             return preview_info
 
         except Exception as e:
-            print(f"An error occurred during preview: {str(e)}")
+            self.logger.error(f"Preview failed: {str(e)}")
             raise
 
     def convert(self, force=False):
@@ -174,19 +165,19 @@ class MarkdownConverter:
         preview_info = self.preview()
         
         # Print preview information
-        print("\nFiles to be created:")
+        self.logger.info("\nFiles to be created:")
         for dir_info in preview_info['directories']:
             status = "exists" if dir_info['exists'] else "will be created"
-            print(f"Directory: {dir_info['path']} ({status})")
+            self.logger.info(f"Directory: {dir_info['path']} ({status})")
         
         for file_info in preview_info['files']:
             status = "exists" if file_info['exists'] else "will be created"
-            print(f"File: {file_info['path']} ({status})")
+            self.logger.info(f"File: {file_info['path']} ({status})")
         
         if preview_info['conflicts'] and not force:
-            print("\nWarning: The following files already exist:")
+            self.logger.warning("\nWarning: The following files already exist:")
             for conflict in preview_info['conflicts']:
-                print(f"- {conflict}")
+                self.logger.warning(f"- {conflict}")
             raise FileExistsError(
                 "Some files already exist. Use --force to overwrite or choose a different output directory."
             )
@@ -216,7 +207,7 @@ class MarkdownConverter:
                 file_path = output_path / clean_filename
                 self.ensure_directory(str(file_path))
 
-                print(f"Creating file: {file_path}")
+                self.logger.info(f"Creating file: {file_path}")
                 with open(file_path, 'w', encoding='utf-8') as f:
                     f.write(file_content + '\n')
 
@@ -225,13 +216,13 @@ class MarkdownConverter:
 
                 created_files.append(clean_filename)
 
-            print("\nCreated files:")
+            self.logger.info("\nCreated files:")
             for f in sorted(created_files):
-                print(f"- {f}")
-            print("\nProject structure created successfully!")
+                self.logger.info(f"- {f}")
+            self.logger.info("\nProject structure created successfully!")
 
             return created_files
 
         except Exception as e:
-            print(f"An error occurred: {str(e)}")
+            self.logger.error(f"Conversion failed: {str(e)}")
             raise
