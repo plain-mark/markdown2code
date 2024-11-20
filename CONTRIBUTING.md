@@ -117,7 +117,7 @@ markdown2code/
 │   └── test_converter.py
 ├── CHANGELOG.md          # Version history
 ├── CONTRIBUTING.md       # This file
-├── LICENSE              # MIT License
+├── LICENSE              # Apache License
 ├── README.md            # Project documentation
 ├── requirements.txt     # Dependencies
 ├── setup.cfg           # Package configuration
@@ -200,4 +200,4 @@ Instances of abusive, harassing, or otherwise unacceptable behavior may be repor
 
 ## License
 
-By contributing to markdown2code, you agree that your contributions will be licensed under its MIT License.
+By contributing to markdown2code, you agree that your contributions will be licensed under its Apache License.
