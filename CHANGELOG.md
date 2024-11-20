@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.1.0] - 2024-11-20
+## [2.0.0] - 2024-11-20
 
 ### Added
 - Git-based backup system
@@ -14,12 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Restore from backups
   - Delete backups
   - View backup information
-- New CLI commands:
-  - `markdown2code backup create`
-  - `markdown2code backup list`
-  - `markdown2code backup restore`
-  - `markdown2code backup delete`
-  - `markdown2code backup info`
+- New CLI subcommand structure
+  - `markdown2code convert` for main functionality
+  - `markdown2code backup` for backup operations
 - Backup features:
   - Automatic branch creation
   - File-specific backups
@@ -28,10 +25,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Detailed backup information
 
 ### Changed
-- Restructured CLI interface with subcommands
-- Enhanced error handling for backup operations
-- Improved logging for backup actions
-- Updated command-line help messages
+- Major CLI interface restructuring
+  - Moved main functionality to 'convert' subcommand
+  - Added 'backup' subcommand group
+  - Updated all command-line options
+- Enhanced error handling for all operations
+- Improved logging system
+- Updated documentation structure
 
 ### Security
 - Safe backup restoration process
