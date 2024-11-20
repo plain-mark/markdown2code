@@ -3,9 +3,36 @@
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1.html).
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.0.1] - 2024-11-20
+## [2.1.0] - 2024-11-20
+
+### Added
+- Automatic backup feature with --backup flag
+  - Creates Git backup before conversion
+  - Shows backed up files
+  - Displays backup branch name
+  - Provides restore instructions
+- Enhanced conversion workflow
+  - Backup status reporting
+  - Directory creation logging
+  - Clear backup references
+  - Restore guidance on failure
+
+### Changed
+- Improved conversion process
+  - Added backup status checks
+  - Enhanced directory creation feedback
+  - Better error handling with backup info
+- Updated CLI help messages
+- Enhanced logging output
+
+### Fixed
+- Directory creation feedback
+- Error handling with backups
+- Status reporting clarity
+
+## [2.0.0] - 2024-11-20
 
 ### Added
 - Git-based backup system

@@ -122,12 +122,52 @@ Options:
   --output, -o DIR    Output directory (default: current)
   --preview, -p       Preview files without creating
   --force, -f         Force overwrite existing files
+  --backup, -b        Create Git backup before conversion
   --verbose, -v       Enable verbose output
   --config, -c FILE   Use custom configuration file
   --create-config     Create default configuration file
   --version          Show version number
   --help             Show this help message
 ```
+
+### Automatic Backup
+
+The --backup flag creates a Git backup before making any changes:
+
+```bash
+# Preview with backup information
+markdown2code convert input.md --preview --backup
+
+# Convert with automatic backup
+markdown2code convert input.md --backup
+
+# Force overwrite with backup
+markdown2code convert input.md --force --backup
+```
+
+Example output with --backup:
+```
+Creating backup before proceeding...
+Created backup in branch: backup_20240109_123456
+
+Backed up files:
+- src/main.py
+- tests/test_main.py
+
+Files to be created:
+Directory: ./src (will be created)
+File: ./src/main.py (exists)
+File: ./src/utils.py (will be created)
+
+Note: Original state backed up in branch: backup_20240109_123456
+Project structure created successfully!
+```
+
+If something goes wrong, you can restore from the backup:
+```bash
+markdown2code backup restore backup_20240109_123456
+```
+
 
 ### Backup Commands
 ```bash

@@ -37,7 +37,6 @@ class MarkdownConverter:
             self.logger.error(f"Failed to create backup: {str(e)}")
             raise
 
-
     @staticmethod
     def extract_filename_from_comments(content):
         """Extract filename from various comment types."""
