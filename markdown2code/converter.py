@@ -6,6 +6,7 @@ import re
 import logging
 from pathlib import Path
 from .config import Config
+from .backup import GitBackup
 
 class MarkdownConverter:
     def __init__(self, input_file, output_dir='.', config=None):
@@ -22,6 +23,20 @@ class MarkdownConverter:
             format=log_config['format']
         )
         self.logger = logging.getLogger(__name__)
+
+    def _create_backup(self):
+        """Create a backup of the current state."""
+        try:
+            backup = GitBackup(self.output_dir)
+            branch_name = backup.create_backup(
+                message="Auto-backup before markdown2code conversion"
+            )
+            self.logger.info(f"Created backup in branch: {branch_name}")
+            return branch_name
+        except Exception as e:
+            self.logger.error(f"Failed to create backup: {str(e)}")
+            raise
+
 
     @staticmethod
     def extract_filename_from_comments(content):
@@ -160,8 +175,24 @@ class MarkdownConverter:
             self.logger.error(f"Preview failed: {str(e)}")
             raise
 
-    def convert(self, force=False):
+    def convert(self, force=False, backup=False):
         """Convert markdown file to code files."""
+        backup_branch = None
+        if backup:
+            self.logger.info("Creating backup before proceeding...")
+            backup_branch = self._create_backup()
+            self.logger.info(f"Backup created successfully: {backup_branch}")
+            
+            # Show what was backed up
+            backup = GitBackup(self.output_dir)
+            info = backup.get_backup_info(backup_branch)
+            if info['files']:
+                self.logger.info("\nBacked up files:")
+                for file in info['files']:
+                    self.logger.info(f"- {file}")
+            else:
+                self.logger.info("No existing files were backed up")
+
         preview_info = self.preview()
         
         # Print preview information
@@ -178,6 +209,8 @@ class MarkdownConverter:
             self.logger.warning("\nWarning: The following files already exist:")
             for conflict in preview_info['conflicts']:
                 self.logger.warning(f"- {conflict}")
+            if backup_branch:
+                self.logger.info(f"\nNote: These files have been backed up in branch: {backup_branch}")
             raise FileExistsError(
                 "Some files already exist. Use --force to overwrite or choose a different output directory."
             )
@@ -196,6 +229,7 @@ class MarkdownConverter:
                     full_path = output_path / path
                     if path.endswith('/'):
                         full_path.mkdir(parents=True, exist_ok=True)
+                        self.logger.info(f"Created directory: {full_path}")
                     else:
                         self.ensure_directory(str(full_path))
 
@@ -219,10 +253,15 @@ class MarkdownConverter:
             self.logger.info("\nCreated files:")
             for f in sorted(created_files):
                 self.logger.info(f"- {f}")
+            
+            if backup_branch:
+                self.logger.info(f"\nNote: Original state backed up in branch: {backup_branch}")
             self.logger.info("\nProject structure created successfully!")
 
             return created_files
 
         except Exception as e:
             self.logger.error(f"Conversion failed: {str(e)}")
+            if backup_branch:
+                self.logger.info(f"\nYou can restore the original state from backup: {backup_branch}")
             raise
