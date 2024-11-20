@@ -4,10 +4,11 @@
     <title>markdown2code Web Interface</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
+            background: #f6f8fa;
         }
         .container {
             margin-top: 20px;
@@ -30,6 +31,7 @@
             border: 1px solid #ddd;
             border-radius: 4px;
             display: none;
+            background: white;
         }
         .error {
             color: red;
@@ -46,6 +48,47 @@
         }
         button:hover {
             background-color: #45a049;
+        }
+        .file-tree {
+            background: white;
+            border: 1px solid #e1e4e8;
+            border-radius: 6px;
+            padding: 16px;
+            margin-top: 20px;
+        }
+        .file {
+            padding: 4px 8px;
+            margin: 2px 0;
+            border-radius: 4px;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+        }
+        .created {
+            background-color: #e6ffec;
+            border: 1px solid #abf2bc;
+            color: #1a7f37;
+        }
+        .modified {
+            background-color: #fafbe6;
+            border: 1px solid #f2e5ab;
+            color: #7f6a1a;
+        }
+        .deleted {
+            background-color: #ffebe9;
+            border: 1px solid #f2abab;
+            color: #7f1a1a;
+        }
+        .icon {
+            margin-right: 8px;
+            font-weight: bold;
+        }
+        .header {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e1e4e8;
+        }
+        .message {
+            color: #57606a;
+            font-style: italic;
         }
     </style>
 </head>
@@ -65,11 +108,35 @@
         <div id="error" class="error"></div>
         <div id="result" class="result">
             <h3>Conversion Result</h3>
+            <div id="changes-visualization"></div>
             <pre id="result-content"></pre>
         </div>
     </div>
 
     <script>
+        function displayChanges(data) {
+            const changesDiv = document.getElementById('changes-visualization');
+            let html = `
+                <div class="header">
+                    <div class="message">${data.message}</div>
+                </div>
+                <div class="file-tree">
+            `;
+
+            if (data.created_files) {
+                data.created_files.forEach(file => {
+                    html += `
+                        <div class="file created">
+                            <span class="icon">+</span>${file}
+                        </div>
+                    `;
+                });
+            }
+
+            html += '</div>';
+            changesDiv.innerHTML = html;
+        }
+
         function convertMarkdown(type) {
             const formData = new FormData();
             const resultDiv = document.getElementById('result');
@@ -103,6 +170,7 @@
                 } else {
                     errorDiv.style.display = 'none';
                     resultDiv.style.display = 'block';
+                    displayChanges(data);
                     resultContent.textContent = JSON.stringify(data, null, 2);
                 }
             })

@@ -41,6 +41,7 @@ class MarkdownConverter:
     def extract_filename_from_comments(content):
         """Extract filename from various comment types."""
         patterns = [
+            # Explicit filename patterns
             r'(?:^|\n)//\s*filename:\s*([^\n]*\.[\w]+)',  # JavaScript, C++
             r'(?:^|\n)#\s*filename:\s*([^\n]*\.[\w]+)',   # Python, Bash, Ruby
             r'/\*\s*filename:\s*(.*?\.[\w]+).*?\*/',       # C-style (/* */)
@@ -49,6 +50,11 @@ class MarkdownConverter:
             r"'''\s*filename:\s*(.*?\.[\w]+).*?'''",       # Python docstring (single quotes)
             r'--\s*filename:\s*([^\n]*\.[\w]+)',          # SQL
             r'%\s*filename:\s*([^\n]*\.[\w]+)',           # LaTeX
+            # Direct filename comment patterns
+            r'(?:^|\n)//\s*([\w\-]+\.[a-zA-Z0-9]+)\s*$',  # // filename.ext
+            r'(?:^|\n)#\s*([\w\-]+\.[a-zA-Z0-9]+)\s*$',   # # filename.ext
+            r'/\*\s*([\w\-]+\.[a-zA-Z0-9]+)\s*\*/',       # /* filename.ext */
+            r'<!--\s*([\w\-]+\.[a-zA-Z0-9]+)\s*-->',      # <!-- filename.ext -->
         ]
 
         for pattern in patterns:
@@ -66,6 +72,30 @@ class MarkdownConverter:
         files_content = {}
         file_counter = {}
 
+        # First try to extract files from non-markdown content with filename comments
+        content_parts = re.split(r'\n\s*(?://|#|/\*|\<\!--)\s*[\w\-]+\.[a-zA-Z0-9]+', markdown_content)
+        if len(content_parts) > 1:  # If we found any filename comments
+            # Reset to start of content to get the filenames too
+            current_pos = 0
+            current_file = None
+            current_content = []
+            
+            for line in markdown_content.split('\n'):
+                filename = self.extract_filename_from_comments(line)
+                if filename:
+                    if current_file:  # Save previous file content
+                        files_content[current_file] = '\n'.join(current_content).strip()
+                    current_file = filename
+                    current_content = []
+                elif current_file:  # Collect content for current file
+                    if not line.strip().startswith('//') and not line.strip().startswith('#'):
+                        current_content.append(line)
+            
+            # Save last file content
+            if current_file:
+                files_content[current_file] = '\n'.join(current_content).strip()
+
+        # Then process markdown code blocks
         for match in matches:
             language = match.group(1)
             header = match.group(2)
