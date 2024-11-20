@@ -21,7 +21,7 @@ test-project/
 
 Main Python script:
 ```python
-# src/main.py
+# filename: src/main.py
 def main():
     print("Hello, World!")
 
@@ -31,6 +31,7 @@ if __name__ == '__main__':
 
 README file:
 ```markdown
+# filename: README.md
 # Test Project
 A test project
 ```
@@ -49,15 +50,15 @@ def test_extract_filename_from_comments():
     assert converter.extract_filename_from_comments(content) == "test.py"
     
     # Test JavaScript style comments
-    content = "// script.js\nconsole.log('test');"
+    content = "// filename: script.js\nconsole.log('test');"
     assert converter.extract_filename_from_comments(content) == "script.js"
     
     # Test C-style comments
-    content = "/* main.cpp */\nint main() {}"
+    content = "/* filename: main.cpp */\nint main() {}"
     assert converter.extract_filename_from_comments(content) == "main.cpp"
     
     # Test HTML comments
-    content = "<!-- index.html -->\n<html></html>"
+    content = "<!-- filename: index.html -->\n<html></html>"
     assert converter.extract_filename_from_comments(content) == "index.html"
 
 def test_extract_file_content(sample_markdown):
@@ -69,6 +70,7 @@ def test_extract_file_content(sample_markdown):
     
     assert "def main():" in files["src/main.py"]
     assert "# Test Project" in files["README.md"]
+    assert "A test project" in files["README.md"]
 
 def test_create_directory_structure():
     converter = MarkdownConverter("dummy.md")
@@ -80,7 +82,9 @@ test-project/
 '''
     paths = converter.create_directory_structure(structure)
     assert "test-project/" in paths
-    assert "src/" in paths
+    assert "test-project/src/" in paths
+    assert "test-project/src/main.py" in paths
+    assert "test-project/README.md" in paths
 
 def test_preview(temp_dir, sample_markdown):
     # Create a temporary markdown file
@@ -91,14 +95,15 @@ def test_preview(temp_dir, sample_markdown):
     preview_info = converter.preview()
     
     # Check directories
-    assert any(d['path'].endswith('src') for d in preview_info['directories'])
+    src_dir = str(Path(temp_dir) / "src")
+    assert any(d['path'] == src_dir for d in preview_info['directories'])
     
     # Check files
     expected_files = {
-        "src/main.py",
-        "README.md"
+        str(Path(temp_dir) / "src/main.py"),
+        str(Path(temp_dir) / "README.md")
     }
-    actual_files = {Path(f['path']).name for f in preview_info['files']}
+    actual_files = {f['path'] for f in preview_info['files']}
     assert expected_files == actual_files
     
     # Check no conflicts initially
@@ -124,6 +129,7 @@ def test_convert(temp_dir, sample_markdown):
     with open(os.path.join(temp_dir, "README.md")) as f:
         content = f.read()
         assert "# Test Project" in content
+        assert "A test project" in content
 
 def test_file_conflict_handling(temp_dir, sample_markdown):
     # Create a temporary markdown file
@@ -139,7 +145,7 @@ def test_file_conflict_handling(temp_dir, sample_markdown):
     
     # Check preview shows conflict
     preview_info = converter.preview()
-    assert any(p.endswith("main.py") for p in preview_info['conflicts'])
+    assert any(str(Path(temp_dir) / "src/main.py") == p for p in preview_info['conflicts'])
     
     # Check conversion raises error without force
     with pytest.raises(FileExistsError):
@@ -157,7 +163,7 @@ def test_file_conflict_handling(temp_dir, sample_markdown):
 def test_executable_permissions(temp_dir):
     markdown_content = '''
 ```bash
-# script.sh
+# filename: script.sh
 #!/bin/bash
 echo "Hello"
 ```
