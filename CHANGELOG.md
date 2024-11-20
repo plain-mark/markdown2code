@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2024-01-09
+
+### Added
+- Comprehensive use case documentation
+- Detailed AI chat conversion examples:
+  - React Todo App example
+  - Python script example
+  - Configuration files example
+- New sections in README:
+  - AI Chat Development Sessions
+  - Documentation to Implementation
+  - Tutorial Creation
+  - Project Templates
+- Step-by-step conversion guides
+- Real-world application examples
+
+### Changed
+- Enhanced README structure
+- Improved usage documentation
+- Updated example formats
+- Clearer installation instructions
+
+### Deprecated
+- N/A
+
+### Removed
+- N/A
+
+### Fixed
+- Documentation clarity
+- Example formatting
+
+### Security
+- N/A
+
 ## [0.4.0] - 2024-01-09
 
 ### Added

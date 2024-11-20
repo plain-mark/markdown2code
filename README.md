@@ -1,15 +1,136 @@
 # markdown2code
 
-                       _       _                     ___               _      
-                      | |     | |                   |__ \             | |     
-  _ __ ___   __ _ _ __| | ____| | _____      ___ __    ) |___ ___   __| | ___ 
- | '_ ` _ \ / _` | '__| |/ / _` |/ _ \ \ /\ / / '_ \  / // __/ _ \ / _` |/ _ \
- | | | | | | (_| | |  |   < (_| | (_) \ V  V /| | | |/ /| (_| (_) | (_| |  __/
- |_| |_| |_|\__,_|_|  |_|\_\__,_|\___/ \_/\_/ |_| |_|____\___\___/ \__,_|\___|
-                                                                              
-                                                                              
+Convert markdown files into organized project structures with code files. This tool is particularly useful for converting code snippets from AI chat conversations (like ChatGPT, Claude, etc.) into actual project files.
 
-Convert markdown files into organized project structures with code files. This tool extracts code blocks from markdown files and creates a proper directory structure with the corresponding source files.
+## Use Cases
+
+### 1. AI Chat Development Sessions
+- Save entire development sessions from AI chats as markdown
+- Convert code snippets and project structures into actual files
+- Maintain context and documentation alongside code
+- Easily implement AI-suggested project structures
+
+### 2. Documentation to Implementation
+- Convert technical documentation into working code
+- Transform architecture documents into project scaffolding
+- Create boilerplate from markdown specifications
+
+### 3. Tutorial Creation
+- Convert markdown tutorials into ready-to-use projects
+- Create example code from educational content
+- Generate starter templates for workshops
+
+### 4. Project Templates
+- Maintain project templates in readable markdown
+- Generate consistent project structures
+- Share project setups in human-readable format
+
+## AI Chat Example
+
+Here's an example of converting an AI chat into a working project:
+
+1. Save this AI chat conversation as `chat.md`:
+
+````markdown
+# React Todo App Development Chat
+
+Project structure suggested by AI:
+```markdown
+todo-app/
+├── public/
+│   └── index.html
+├── src/
+│   ├── components/
+│   │   ├── TodoList.js
+│   │   └── TodoItem.js
+│   ├── App.js
+│   └── index.js
+└── package.json
+```
+
+The AI suggested this HTML:
+```html
+# public/index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo App</title>
+</head>
+<body>
+    <div id="root"></div>
+</body>
+</html>
+```
+...
+````
+[chat.md](chat.md)
+
+2. Convert the chat to a project:
+```bash
+# Preview what will be created
+markdown2code chat.md --preview --output todo-app
+
+# Create the project
+markdown2code chat.md --output todo-app
+```
+
+3. Run the project:
+```bash
+cd todo-app
+npm install
+npm start
+```
+
+## More AI Chat Examples
+
+### Python Script from Chat
+````markdown
+The AI suggested this script:
+```python
+# data_processor.py
+import pandas as pd
+
+def process_data(input_file):
+    df = pd.read_csv(input_file)
+    processed = df.dropna().describe()
+    return processed
+
+if __name__ == '__main__':
+    result = process_data('data.csv')
+    print(result)
+```
+````
+
+Convert it:
+```bash
+markdown2code script.md
+```
+
+### Configuration Files from Chat
+````markdown
+The AI recommended these configs:
+```yaml
+# config.yml
+server:
+  port: 8080
+  host: localhost
+```
+
+```json
+# settings.json
+{
+  "debug": true,
+  "logLevel": "info"
+}
+```
+````
+
+Convert them:
+```bash
+markdown2code config.md
+```
 
 ## Features
 
@@ -50,160 +171,10 @@ Force overwrite existing files:
 markdown2code input.md --force
 ```
 
-## File Conflict Handling
-
-By default, markdown2code will not overwrite existing files. When a file conflict is detected:
-
-1. In normal mode:
-   - Shows which files would be overwritten
-   - Stops execution without making changes
-   - Suggests using --force or a different output directory
-
-2. With --preview:
-   - Shows all files and directories that would be created
-   - Indicates which files already exist
-   - No changes are made to the filesystem
-
-3. With --force:
-   - Proceeds with file creation
-   - Overwrites any existing files
-   - Creates new directories as needed
-
-## Markdown Format
-
-### Code Blocks
-
-Code blocks should be marked with triple backticks and the language identifier:
-
-````markdown
-```python
-def hello():
-    print("Hello, World!")
-```
-````
-
-### File Names
-
-File names can be specified in three ways:
-
-1. In the code block header:
-````markdown
-```python
-# main.py
-def hello():
-    print("Hello, World!")
-```
-````
-
-2. In comments within the code:
-````markdown
-```python
-# filename: main.py
-def hello():
-    print("Hello, World!")
-```
-````
-
-3. Automatically assigned based on language (if no name is specified):
-- Python -> script.py
-- JavaScript -> script.js
-- HTML -> index.html
-- etc.
-
-### Directory Structure
-
-Project structure can be defined using a markdown code block:
-
-````markdown
-```markdown
-my-project/
-├── src/
-│   ├── main.py
-│   └── utils/
-│       └── helpers.py
-├── tests/
-│   └── test_main.py
-└── README.md
-```
-````
-
-## Default File Names
-
-When no filename is specified, the following defaults are used:
-
-- JavaScript: script.js
-- Python: script.py
-- CSS: styles.css
-- HTML: index.html
-- Java: Main.java
-- C++: main.cpp
-- C: main.c
-- SQL: query.sql
-- PHP: index.php
-- Ruby: script.rb
-- Go: main.go
-- Rust: main.rs
-- TypeScript: script.ts
-- YAML: config.yml
-- JSON: config.json
-- XML: config.xml
-- Markdown: README.md
-- Shell: script.sh
-- Dockerfile: Dockerfile
-
-## Example
-
-Input markdown file (`project.md`):
-````markdown
-# My Project
-
-Project structure:
-```markdown
-my-project/
-├── src/
-│   └── main.py
-└── README.md
-```
-
-Main Python script:
-```python
-# src/main.py
-def main():
-    print("Hello from my project!")
-
-if __name__ == '__main__':
-    main()
-```
-
-Project README:
-```markdown
-# My Project
-A simple example project.
-```
-````
-
-Preview what will be created:
-```bash
-markdown2code project.md --preview --output my-project
-```
-
-Create the project structure:
-```bash
-markdown2code project.md --output my-project
-```
-
-This will create:
-```
-my-project/
-├── src/
-│   └── main.py
-└── README.md
-```
-
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-This project is licensed under the Apache 2 License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the LICENSE file for details.
