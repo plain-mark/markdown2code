@@ -121,17 +121,19 @@ markdown2code convert [options] input.md
 Options:
   --output, -o DIR    Output directory (default: current)
   --preview, -p       Preview files without creating
-  --force, -f         Force overwrite existing files
-  --backup, -b        Create Git backup before conversion
-  --verbose, -v       Enable verbose output
-  --config, -c FILE   Use custom configuration file
-  --create-config     Create default configuration file
-  --version          Show version number
-  --help             Show this help message
+  --force, -f        Force overwrite existing files
+  --backup, -b       Create Git backup before conversion
+  --restore, -r      Restore from last backup
+  --verbose, -v      Enable verbose output
+  --config, -c FILE  Use custom configuration file
+  --create-config    Create default configuration file
+  --version         Show version number
+  --help            Show this help message
 ```
 
-### Automatic Backup
+### Backup and Restore
 
+#### Creating Backups
 The --backup flag creates a Git backup before making any changes:
 
 ```bash
@@ -163,85 +165,76 @@ Note: Original state backed up in branch: backup_20240109_123456
 Project structure created successfully!
 ```
 
-If something goes wrong, you can restore from the backup:
+#### Quick Restore
+Use the --restore flag to quickly restore from the most recent backup:
+
 ```bash
-markdown2code backup restore backup_20240109_123456
+# Restore from last backup
+markdown2code convert input.md --restore
 ```
 
-
-### Backup Commands
-```bash
-# Create a backup
-markdown2code backup create [--files FILE...] [--message MESSAGE] [--directory DIR]
-
-# List all backups
-markdown2code backup list [--directory DIR]
-
-# Restore from backup
-markdown2code backup restore BACKUP_NAME [--directory DIR]
-
-# Delete a backup
-markdown2code backup delete BACKUP_NAME [--directory DIR]
-
-# Show backup information
-markdown2code backup info BACKUP_NAME [--directory DIR]
+Example restore output:
 ```
+Restored 3 files from last backup: backup_20240109_123456
 
-## Backup System
-
-The backup system uses Git to create and manage backups of your source code files.
-
-### Creating Backups
-
-Create a backup of all files:
-```bash
-markdown2code backup create --message "Before refactoring"
-```
-
-Backup specific files:
-```bash
-markdown2code backup create --files src/main.py tests/test_main.py --message "API changes"
-```
-
-### Managing Backups
-
-List available backups:
-```bash
-markdown2code backup list
-```
-
-View backup details:
-```bash
-markdown2code backup info backup_20240109_123456
-```
-
-Example output:
-```
-Backup Information:
-Branch: backup_20240109_123456
-Date: 2024-01-09 12:34:56
-Commit: a1b2c3d
-Message: Before refactoring
-Files:
+Restored files:
 - src/main.py
+- src/utils.py
 - tests/test_main.py
 ```
 
-### Restoring Backups
+#### Manual Backup Management
+For more control over backups:
 
-Restore from a backup:
 ```bash
+# List all backups (newest first)
+markdown2code backup list
+
+# Show backup details
+markdown2code backup info backup_20240109_123456
+
+# Restore specific backup
 markdown2code backup restore backup_20240109_123456
-```
 
-Note: Ensure your working directory is clean before restoring.
-
-### Deleting Backups
-
-Delete an old backup:
-```bash
+# Delete old backup
 markdown2code backup delete backup_20240109_123456
 ```
+
+## Troubleshooting
+
+
+### Backup and Restore Issues
+
+1. Quick Restore Fails
+```bash
+# Check available backups
+markdown2code backup list
+
+# Try manual restore if needed
+markdown2code backup restore BACKUP_NAME
+```
+
+2. No Backups Found
+```bash
+# Check if directory is a git repository
+git status
+
+# Initialize if needed
+git init
+
+# Create initial backup
+markdown2code convert input.md --backup
+```
+
+3. Restore Conflicts
+```bash
+# Preview changes first
+markdown2code convert input.md --preview --restore
+
+# Force restore if needed
+markdown2code convert input.md --force --restore
+```
+
 
 ### Best Practices
 

@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2024-11-20
+
+### Added
+- Quick restore functionality with --restore flag
+  - Automatically finds most recent backup
+  - Simple one-command restore
+  - Lists restored files
+  - Clear status reporting
+- Enhanced backup management
+  - Last backup detection
+  - Chronological backup sorting
+  - Improved backup selection
+
+### Changed
+- Improved restore workflow
+- Enhanced backup listing
+- Better error messages
+- Clearer restore feedback
+
+### Fixed
+- Backup sorting logic
+- Restore status reporting
+- Error handling in restore process
+
 ## [2.1.0] - 2024-11-20
 
 ### Added

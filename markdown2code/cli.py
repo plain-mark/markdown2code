@@ -9,6 +9,15 @@ from .converter import MarkdownConverter
 from .config import Config
 from .backup import GitBackup
 
+def setup_logging(config):
+    """Setup logging based on configuration and CLI options."""
+    log_config = config.get_logging_config()
+    logging.basicConfig(
+        level=getattr(logging, log_config['level'].upper()),
+        format=log_config['format']
+    )
+    return logging.getLogger(__name__)
+
 def restore_last_backup(directory, logger):
     """Restore the most recent backup."""
     backup = GitBackup(directory)
@@ -28,16 +37,6 @@ def restore_last_backup(directory, logger):
     except Exception as e:
         logger.error(f"Failed to restore backup: {str(e)}")
         return 1
-
-
-def setup_logging(config):
-    """Setup logging based on configuration and CLI options."""
-    log_config = config.get_logging_config()
-    logging.basicConfig(
-        level=getattr(logging, log_config['level'].upper()),
-        format=log_config['format']
-    )
-    return logging.getLogger(__name__)
 
 def handle_backup_commands(args, logger):
     """Handle backup-related commands."""
