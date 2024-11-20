@@ -13,11 +13,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Detailed command reference with examples
   - Configuration and backup operation guides
   - Web interface instructions
+- New test files for improved test coverage:
+  - tests/test_api.py with extensive API testing
+  - tests/test_integration.py for integration testing
+  - tests/conftest.py with pytest fixtures
 
 ### Improved
 - Enhanced documentation organization
 - More detailed command examples
 - Better formatted command descriptions
+- Test coverage with new test cases:
+  - Code block API endpoints testing
+  - Duplicate detection testing
+  - Similar code blocks detection
+  - Code diff generation
+  - Change monitoring
+  - Full workflow integration tests
 
 ## [2.4.0] - 2024-11-20
 

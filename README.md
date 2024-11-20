@@ -540,3 +540,23 @@ python -m markdown2code server --host localhost --port 5000
 markdown2code server --host localhost --port 5001 --output test_output
 markdown2code server --host localhost --port 5000
 ```
+
+
+## TESTS
+
+```bash
+python -m markdown2code convert test_python_files.txt --output test_output
+```
+
+Output
+
+```bash
+2024-11-20 20:28:04,455 - markdown2code.converter - INFO - Creating file: test_output/tests/conftest.py
+2024-11-20 20:28:04,455 - markdown2code.converter - INFO - Creating file: test_output/tests/test_api.py
+2024-11-20 20:28:04,455 - markdown2code.converter - INFO - 
+Created files:
+2024-11-20 20:28:04,455 - markdown2code.converter - INFO - - tests/conftest.py
+2024-11-20 20:28:04,455 - markdown2code.converter - INFO - - tests/test_api.py
+2024-11-20 20:28:04,455 - markdown2code.converter - INFO - 
+Project structure created successfully!
+```

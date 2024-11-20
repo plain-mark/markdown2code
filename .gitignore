@@ -1,5 +1,11 @@
 .idea
 venv
+test_python_files.txt
+test_requirements.txt
+test_explicit.txt
+test_boundaries.txt
+test_mixed.txt
+test_mixed2.txt
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

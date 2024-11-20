@@ -9,6 +9,36 @@ from .config import Config
 from .backup import GitBackup
 
 class MarkdownConverter:
+    # Common file extensions that should be recognized
+    COMMON_EXTENSIONS = {
+        # Configuration files
+        '.json', '.yaml', '.yml', '.toml', '.ini', '.cfg', '.conf',
+        # Web files
+        '.html', '.css', '.js', '.jsx', '.ts', '.tsx', '.vue',
+        # Python files
+        '.py', '.pyi', '.pyx',
+        # Shell scripts
+        '.sh', '.bash',
+        # Documentation
+        '.md', '.rst', '.txt',
+        # Environment files
+        '.env', '.env.example',
+        # Requirements files
+        'requirements.txt', 'requirements-dev.txt', 'requirements-test.txt',
+        # Package files
+        'setup.py', 'setup.cfg', 'pyproject.toml',
+        # Git files
+        '.gitignore', '.gitattributes',
+        # Docker files
+        'Dockerfile', 'docker-compose.yml', 'docker-compose.yaml'
+    }
+
+    # Common filenames that should be recognized even without extensions
+    COMMON_FILENAMES = {
+        'Dockerfile', 'Makefile', 'README', 'LICENSE', 'CHANGELOG',
+        'requirements.txt', '.env', '.env.example', '.gitignore'
+    }
+
     def __init__(self, input_file, output_dir='.', config=None):
         self.input_file = input_file
         self.output_dir = output_dir
@@ -37,115 +67,127 @@ class MarkdownConverter:
             self.logger.error(f"Failed to create backup: {str(e)}")
             raise
 
-    @staticmethod
-    def extract_filename_from_comments(content):
-        """Extract filename from various comment types."""
-        patterns = [
-            # Explicit filename patterns
-            r'(?:^|\n)//\s*filename:\s*([^\n]*\.[\w]+)',  # JavaScript, C++
-            r'(?:^|\n)#\s*filename:\s*([^\n]*\.[\w]+)',   # Python, Bash, Ruby
-            r'/\*\s*filename:\s*(.*?\.[\w]+).*?\*/',       # C-style (/* */)
-            r'<!--\s*filename:\s*(.*?\.[\w]+).*?-->',      # HTML/XML
-            r'"""\s*filename:\s*(.*?\.[\w]+).*?"""',       # Python docstring
-            r"'''\s*filename:\s*(.*?\.[\w]+).*?'''",       # Python docstring (single quotes)
-            r'--\s*filename:\s*([^\n]*\.[\w]+)',          # SQL
-            r'%\s*filename:\s*([^\n]*\.[\w]+)',           # LaTeX
-            # Direct filename comment patterns
-            r'(?:^|\n)//\s*([\w\-]+\.[a-zA-Z0-9]+)\s*$',  # // filename.ext
-            r'(?:^|\n)#\s*([\w\-]+\.[a-zA-Z0-9]+)\s*$',   # # filename.ext
-            r'/\*\s*([\w\-]+\.[a-zA-Z0-9]+)\s*\*/',       # /* filename.ext */
-            r'<!--\s*([\w\-]+\.[a-zA-Z0-9]+)\s*-->',      # <!-- filename.ext -->
-        ]
+    @classmethod
+    def is_valid_filename(cls, filename):
+        """Check if a filename is valid based on common patterns and extensions."""
+        if not filename:
+            return False
 
-        for pattern in patterns:
-            match = re.search(pattern, content, re.DOTALL)
-            if match:
-                return match.group(1).strip()
+        # Remove any leading/trailing whitespace and path separators
+        filename = filename.strip().strip('/')
+            
+        # Check if it's a known filename
+        if filename in cls.COMMON_FILENAMES:
+            return True
+            
+        # Check if it has a known extension
+        _, ext = os.path.splitext(filename)
+        if ext in cls.COMMON_EXTENSIONS:
+            return True
+            
+        # Check if it's a path with a known filename or extension
+        if '/' in filename:
+            parts = filename.split('/')
+            basename = parts[-1]
+            if basename in cls.COMMON_FILENAMES:
+                return True
+            _, ext = os.path.splitext(basename)
+            if ext in cls.COMMON_EXTENSIONS:
+                return True
+                
+        return False
+
+    @classmethod
+    def is_markdown_heading(cls, line):
+        """Check if a line is a markdown heading."""
+        if not line:
+            return False
+        
+        # ATX headings (# Heading) but not file comments
+        if re.match(r'^#+\s+(?!filename:)(?![a-zA-Z0-9_\-]+/|[a-zA-Z0-9_\-]+\.[a-zA-Z0-9]+)', line):
+            return True
+            
+        return False
+
+    @classmethod
+    def extract_filename_from_line(cls, line):
+        """Extract filename from a line."""
+        if not line:
+            return None
+
+        # Skip markdown headings (but not file comments)
+        if cls.is_markdown_heading(line):
+            return None
+
+        # Skip code blocks
+        if line.strip().startswith('```') or line.strip().endswith('```'):
+            return None
+
+        # Try explicit filename marker first
+        explicit_pattern = r'(?:^|\n)(?:#|//|/\*|<!--)\s*filename:\s*((?:[\w\-]+/)*[\w\-]+\.[a-zA-Z0-9]+)'
+        explicit_match = re.search(explicit_pattern, line.strip())
+        if explicit_match:
+            filename = explicit_match.group(1).strip()
+            if cls.is_valid_filename(filename):
+                return filename
 
         return None
 
     def extract_file_content(self, markdown_content):
-        """Extract file content from markdown code blocks."""
-        pattern = r'```(\w+)?\s*(?:#\s*(.*?)\n|\n)?(.*?)```'
-        matches = re.finditer(pattern, markdown_content, re.DOTALL)
-
+        """Extract file content from markdown code blocks and comments."""
         files_content = {}
-        file_counter = {}
-
-        # First try to extract files from non-markdown content with filename comments
-        content_parts = re.split(r'\n\s*(?://|#|/\*|\<\!--)\s*[\w\-]+\.[a-zA-Z0-9]+', markdown_content)
-        if len(content_parts) > 1:  # If we found any filename comments
-            # Reset to start of content to get the filenames too
-            current_pos = 0
-            current_file = None
-            current_content = []
+        lines = markdown_content.split('\n')
+        
+        i = 0
+        while i < len(lines):
+            line = lines[i].rstrip()
             
-            for line in markdown_content.split('\n'):
-                filename = self.extract_filename_from_comments(line)
-                if filename:
-                    if current_file:  # Save previous file content
-                        files_content[current_file] = '\n'.join(current_content).strip()
-                    current_file = filename
-                    current_content = []
-                elif current_file:  # Collect content for current file
-                    if not line.strip().startswith('//') and not line.strip().startswith('#'):
-                        current_content.append(line)
-            
-            # Save last file content
-            if current_file:
-                files_content[current_file] = '\n'.join(current_content).strip()
-
-        # Then process markdown code blocks
-        for match in matches:
-            language = match.group(1)
-            header = match.group(2)
-            content = match.group(3).strip()
-
-            # Skip markdown structure blocks
-            if language == 'markdown' and any(s in content for s in ['├', '└', '│']):
+            # Skip empty lines
+            if not line:
+                i += 1
                 continue
-
-            # First try to get filename from the header
-            filename = None
-            if header:
-                # Remove "filename:" prefix if present
-                if 'filename:' in header:
-                    filename = header.split('filename:', 1)[1].strip()
-                else:
-                    filename = header.strip()
-
-            # If no filename in header, try to get it from content comments
-            if not filename:
-                filename = self.extract_filename_from_comments(content)
-                if filename:
-                    # Remove "filename:" prefix if present in extracted filename
-                    if filename.startswith('filename:'):
-                        filename = filename.split('filename:', 1)[1].strip()
-
-            # Use default patterns if no filename found
-            if not filename and language:
-                language = language.lower()
-                patterns = self.config.get_file_patterns(language)
-                if patterns:
-                    base_name = patterns[0]  # Use first pattern as default
-                    if base_name in file_counter:
-                        file_counter[base_name] += 1
-                        name, ext = os.path.splitext(base_name)
-                        # Try other patterns if available
-                        if len(patterns) > file_counter[base_name]:
-                            filename = patterns[file_counter[base_name]]
-                        else:
-                            filename = f"{name}_{file_counter[base_name]}{ext}"
-                    else:
-                        file_counter[base_name] = 0
-                        filename = base_name
-
+            
+            # Try to extract filename from the line
+            filename = self.extract_filename_from_line(line)
+            self.logger.debug(f"Processing line: {line}")
+            self.logger.debug(f"Extracted filename: {filename}")
+            
             if filename:
-                # Clean up the filename and normalize path separators
-                clean_filename = filename.strip().replace('\\', '/').lstrip('./')
-                self.logger.debug(f"Extracted file content for: {clean_filename}")
-                files_content[clean_filename] = content
-
+                content_lines = []
+                i += 1  # Skip the filename line
+                
+                # Collect lines until we find another filename marker or markdown heading
+                while i < len(lines):
+                    current_line = lines[i].rstrip()
+                    
+                    # Stop at next filename marker or markdown heading
+                    if (self.extract_filename_from_line(current_line) is not None or 
+                        self.is_markdown_heading(current_line)):
+                        break
+                    
+                    # Skip empty lines at the start of content
+                    if not content_lines and not current_line:
+                        i += 1
+                        continue
+                        
+                    # Add the line to content
+                    content_lines.append(current_line)
+                    i += 1
+                
+                # Only add file if we have content
+                if content_lines:
+                    # Remove trailing empty lines
+                    while content_lines and not content_lines[-1]:
+                        content_lines.pop()
+                    
+                    content = '\n'.join(content_lines).strip()
+                    if content:
+                        self.logger.debug(f"Adding file {filename} with content length: {len(content)}")
+                        files_content[filename] = content
+            else:
+                i += 1
+        
+        self.logger.debug(f"Extracted {len(files_content)} files: {list(files_content.keys())}")
         return files_content
 
     @staticmethod
