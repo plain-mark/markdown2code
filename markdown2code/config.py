@@ -44,17 +44,29 @@ DEFAULT_CONFIG = {
 }
 
 class Config:
-    def __init__(self):
+    def __init__(self, config_dir=None):
+        """Initialize configuration.
+        
+        Args:
+            config_dir: Optional directory to look for config files (used in testing)
+        """
         self.config = DEFAULT_CONFIG.copy()
+        self.config_dir = config_dir
         self.load_user_config()
 
     def load_user_config(self):
         """Load user configuration from various locations."""
-        config_locations = [
-            Path.home() / '.config' / 'markdown2code' / 'config.yml',
-            Path.home() / '.markdown2code.yml',
-            Path.cwd() / '.markdown2code.yml'
-        ]
+        if self.config_dir:
+            config_locations = [
+                Path(self.config_dir) / '.markdown2code.yml',
+                Path(self.config_dir) / '.config' / 'markdown2code' / 'config.yml'
+            ]
+        else:
+            config_locations = [
+                Path.home() / '.config' / 'markdown2code' / 'config.yml',
+                Path.home() / '.markdown2code.yml',
+                Path.cwd() / '.markdown2code.yml'
+            ]
 
         for config_path in config_locations:
             if config_path.exists():
@@ -63,18 +75,29 @@ class Config:
                         user_config = yaml.safe_load(f)
                         if user_config:
                             self._merge_config(user_config)
-                        break
+                            break  # Stop after first successful load
                 except Exception as e:
                     print(f"Warning: Failed to load config from {config_path}: {e}")
 
     def _merge_config(self, user_config):
         """Merge user configuration with defaults."""
         if 'file_patterns' in user_config:
-            self.config['file_patterns'].update(user_config['file_patterns'])
+            # Create a new copy of file patterns and update it
+            file_patterns = self.config['file_patterns'].copy()
+            file_patterns.update(user_config['file_patterns'])
+            self.config['file_patterns'] = file_patterns
+            
         if 'logging' in user_config:
-            self.config['logging'].update(user_config['logging'])
+            # Create a new copy of logging config and update it
+            logging_config = self.config['logging'].copy()
+            logging_config.update(user_config['logging'])
+            self.config['logging'] = logging_config
+            
         if 'output' in user_config:
-            self.config['output'].update(user_config['output'])
+            # Create a new copy of output config and update it
+            output_config = self.config['output'].copy()
+            output_config.update(user_config['output'])
+            self.config['output'] = output_config
 
     def get_file_patterns(self, language):
         """Get file patterns for a language."""

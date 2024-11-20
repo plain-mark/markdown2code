@@ -72,6 +72,37 @@ def test_extract_file_content(sample_markdown):
     assert "# Test Project" in files["README.md"]
     assert "A test project" in files["README.md"]
 
+def test_extract_file_content_with_header_paths():
+    markdown_content = '''
+```html
+# public/index.html
+<!DOCTYPE html>
+<html></html>
+```
+
+```javascript
+# src/App.js
+function App() {
+    return <div>Hello</div>;
+}
+```
+
+```css
+# ./src/styles/main.css
+body { margin: 0; }
+```
+'''
+    converter = MarkdownConverter("dummy.md")
+    files = converter.extract_file_content(markdown_content)
+    
+    assert "public/index.html" in files
+    assert "src/App.js" in files
+    assert "src/styles/main.css" in files
+    
+    assert "<html></html>" in files["public/index.html"]
+    assert "function App()" in files["src/App.js"]
+    assert "body { margin: 0; }" in files["src/styles/main.css"]
+
 def test_create_directory_structure():
     converter = MarkdownConverter("dummy.md")
     structure = '''
@@ -130,6 +161,55 @@ def test_convert(temp_dir, sample_markdown):
         content = f.read()
         assert "# Test Project" in content
         assert "A test project" in content
+
+def test_convert_with_nested_directories(temp_dir):
+    markdown_content = '''
+```html
+# public/index.html
+<!DOCTYPE html>
+<html></html>
+```
+
+```javascript
+# src/components/App.js
+function App() {
+    return <div>Hello</div>;
+}
+```
+
+```css
+# src/styles/main.css
+body { margin: 0; }
+```
+'''
+    md_file = Path(temp_dir) / "test.md"
+    md_file.write_text(markdown_content)
+    
+    converter = MarkdownConverter(str(md_file), temp_dir)
+    created_files = converter.convert()
+    
+    # Check if files were created in correct directories
+    assert "public/index.html" in created_files
+    assert "src/components/App.js" in created_files
+    assert "src/styles/main.css" in created_files
+    
+    # Verify directories were created
+    assert os.path.exists(os.path.join(temp_dir, "public"))
+    assert os.path.exists(os.path.join(temp_dir, "src/components"))
+    assert os.path.exists(os.path.join(temp_dir, "src/styles"))
+    
+    # Check file contents
+    with open(os.path.join(temp_dir, "public/index.html")) as f:
+        content = f.read()
+        assert "<html></html>" in content
+    
+    with open(os.path.join(temp_dir, "src/components/App.js")) as f:
+        content = f.read()
+        assert "function App()" in content
+    
+    with open(os.path.join(temp_dir, "src/styles/main.css")) as f:
+        content = f.read()
+        assert "body { margin: 0; }" in content
 
 def test_file_conflict_handling(temp_dir, sample_markdown):
     # Create a temporary markdown file

@@ -22,6 +22,7 @@ Convert markdown files into organized project structures with code files. This t
 - File conflict detection and handling
 - Configuration system with YAML support
 - Verbose logging options
+- Web interface for browser-based conversion
 
 ## Installation
 
@@ -31,7 +32,6 @@ pip install markdown2code
 
 ## Quick Start
 
-Basic usage:
 ```bash
 # Convert markdown to code
 markdown2code input.md

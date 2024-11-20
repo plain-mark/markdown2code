@@ -2,6 +2,7 @@
 Git-based backup and restore functionality for source code files
 """
 import os
+import time
 import subprocess
 import logging
 from pathlib import Path
@@ -39,6 +40,13 @@ class GitBackup:
         """Initialize a new git repository if one doesn't exist."""
         if not self.is_git_repo():
             self._run_git_command(['git', 'init'])
+            # Create initial commit to allow branch creation
+            try:
+                self._run_git_command(['git', 'add', '.'])
+                self._run_git_command(['git', 'commit', '-m', 'Initial commit'])
+            except subprocess.CalledProcessError:
+                # If nothing to commit, create empty commit
+                self._run_git_command(['git', 'commit', '--allow-empty', '-m', 'Initial commit'])
             self.logger.info("Initialized new git repository")
 
     def get_last_backup(self):
@@ -63,8 +71,8 @@ class GitBackup:
         if not self.is_git_repo():
             self.init_repo()
 
-        # Create backup branch name
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        # Create backup branch name with microseconds to avoid collisions
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_%f')
         branch_name = f'backup_{timestamp}'
 
         try:
@@ -74,13 +82,21 @@ class GitBackup:
             # Stage specific files or all files
             if files:
                 for file in files:
-                    self._run_git_command(['git', 'add', file])
+                    try:
+                        self._run_git_command(['git', 'add', file])
+                    except subprocess.CalledProcessError:
+                        # File might not exist, continue with other files
+                        continue
             else:
                 self._run_git_command(['git', 'add', '.'])
 
             # Create commit
             commit_message = message or f'Backup created at {timestamp}'
-            self._run_git_command(['git', 'commit', '-m', commit_message])
+            try:
+                self._run_git_command(['git', 'commit', '-m', commit_message])
+            except subprocess.CalledProcessError:
+                # If nothing to commit, create empty commit
+                self._run_git_command(['git', 'commit', '--allow-empty', '-m', commit_message])
             
             self.logger.info(f"Created backup in branch: {branch_name}")
             return branch_name
@@ -89,8 +105,8 @@ class GitBackup:
             self.logger.error(f"Failed to create backup: {str(e)}")
             # Cleanup if something went wrong
             try:
-                self._run_git_command(['git', 'checkout', '-'], check=False)
-                self._run_git_command(['git', 'branch', '-D', branch_name], check=False)
+                self._run_git_command(['git', 'checkout', '-'])
+                self._run_git_command(['git', 'branch', '-D', branch_name])
             except:
                 pass
             raise
@@ -120,26 +136,54 @@ class GitBackup:
             # Check if there are uncommitted changes
             status = self._run_git_command(['git', 'status', '--porcelain'])
             if status:
-                raise ValueError("Working directory is not clean. Commit or stash changes first.")
+                # Try to stash changes
+                try:
+                    self._run_git_command(['git', 'stash', 'save', 'Temporary stash before restore'])
+                except:
+                    raise ValueError("Working directory is not clean. Commit or stash changes first.")
 
-            # Checkout backup branch
-            self._run_git_command(['git', 'checkout', backup_name])
-            
-            # Get list of files in the backup
-            files = self._run_git_command(['git', 'ls-tree', '-r', '--name-only', 'HEAD']).split('\n')
-            
-            # Checkout each file from backup to current branch
-            self._run_git_command(['git', 'checkout', current])
-            for file in files:
-                if file:  # Skip empty strings
+            try:
+                # Get list of files in the backup
+                files = self._run_git_command(['git', 'ls-tree', '-r', '--name-only', backup_name]).split('\n')
+                files = [f for f in files if f]  # Filter out empty strings
+
+                # Force checkout files from backup branch
+                for file in files:
                     try:
+                        # Force checkout to overwrite any local changes
                         self._run_git_command(['git', 'checkout', backup_name, '--', file])
                         self.logger.info(f"Restored: {file}")
                     except subprocess.CalledProcessError:
                         self.logger.warning(f"Failed to restore: {file}")
 
-            self.logger.info(f"Restored files from backup: {backup_name}")
-            return files
+                # Add restored files to index
+                for file in files:
+                    try:
+                        self._run_git_command(['git', 'add', file])
+                    except subprocess.CalledProcessError:
+                        pass
+
+                # Commit changes
+                try:
+                    self._run_git_command(['git', 'commit', '-m', f'Restored files from {backup_name}'])
+                except subprocess.CalledProcessError:
+                    pass  # No changes to commit
+
+                self.logger.info(f"Restored files from backup: {backup_name}")
+                return files
+
+            finally:
+                # Always try to get back to the original branch
+                try:
+                    self._run_git_command(['git', 'checkout', current])
+                    # Try to restore stashed changes
+                    if status:
+                        try:
+                            self._run_git_command(['git', 'stash', 'pop'])
+                        except:
+                            self.logger.warning("Could not restore stashed changes")
+                except:
+                    pass
 
         except Exception as e:
             self.logger.error(f"Failed to restore backup: {str(e)}")
@@ -153,7 +197,14 @@ class GitBackup:
         try:
             current = self._run_git_command(['git', 'rev-parse', '--abbrev-ref', 'HEAD'])
             if current == backup_name:
-                self._run_git_command(['git', 'checkout', '-'])
+                # Try to switch to main/master or create a new branch
+                try:
+                    self._run_git_command(['git', 'checkout', 'main'])
+                except:
+                    try:
+                        self._run_git_command(['git', 'checkout', 'master'])
+                    except:
+                        self._run_git_command(['git', 'checkout', '-b', 'main'])
             
             self._run_git_command(['git', 'branch', '-D', backup_name])
             self.logger.info(f"Deleted backup: {backup_name}")
