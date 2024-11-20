@@ -34,25 +34,28 @@ pip install markdown2code
 
 ```bash
 # Convert markdown to code
-markdown2code input.md
+markdown2code convert input.md
 
 # Preview files to be created
-markdown2code input.md --preview
+markdown2code convert input.md --preview
 
 # Specify output directory
-markdown2code input.md --output ./my-project
+markdown2code convert input.md --output ./my-project
 
 # Force overwrite existing files
-markdown2code input.md --force
+markdown2code convert input.md --force
 
 # Enable verbose logging
-markdown2code input.md --verbose
+markdown2code convert input.md --verbose
 
 # Use custom configuration
-markdown2code input.md --config my-config.yml
+markdown2code convert input.md --config my-config.yml
 
 # Create default configuration
 markdown2code --create-config
+
+# Start web interface
+markdown2code server --port 5000
 ```
 
 ## Configuration
@@ -112,6 +115,7 @@ Default file patterns for common languages:
 - HTML: index.html, main.html, app.html
 - CSS: styles.css, main.css, app.css
 - And many more...
+
 ## Command Line Options
 
 ### Convert Command
@@ -130,6 +134,80 @@ Options:
   --version         Show version number
   --help            Show this help message
 ```
+
+### Server Command
+```bash
+markdown2code server [options]
+
+Options:
+  --host HOST       Host to bind to (default: localhost)
+  --port PORT       Port to listen on (default: 5000)
+  --output DIR      Output directory for converted files (default: uploads)
+```
+
+## Web Interface
+
+markdown2code provides a web-based interface for converting markdown to code files through your browser.
+
+### Starting the Web Server
+
+```bash
+# Start with default settings (localhost:5000)
+markdown2code server
+
+# Use custom host and port
+markdown2code server --host 0.0.0.0 --port 8000
+
+# Specify output directory
+markdown2code server --output ./my-projects
+```
+
+### Using the Web Interface
+
+1. Start the server using one of the commands above
+2. Open your browser and navigate to the server URL (e.g., http://localhost:5000)
+3. Choose one of two options:
+   - Enter markdown content directly in the text area
+   - Upload a markdown file
+4. Click "Convert" to process your markdown
+5. View the conversion results, including:
+   - List of created files
+   - Directory structure
+   - Any conversion messages or errors
+
+### Features
+
+- Direct markdown content input
+- File upload support
+- Automatic project.md creation
+- Real-time conversion feedback
+- Error handling and display
+- Clean, responsive UI
+- Configurable output directory
+
+### Example Usage
+
+1. Start the server with a custom output directory:
+```bash
+markdown2code server --output ./projects
+```
+
+2. Open http://localhost:5000 in your browser
+
+3. Enter or upload your markdown content
+
+4. After conversion, your files will be created in the specified output directory:
+```
+projects/
+├── project.md          # Your original markdown
+├── src/               # Generated source files
+│   ├── main.py
+│   └── utils.py
+└── ...                # Other generated files
+```
+
+## Backup and Restore
+
 
 ### Backup and Restore
 
@@ -352,7 +430,6 @@ Here's an example of converting an AI chat into a working project:
 
 ````markdown
 # React Todo App Development Chat
-
 Project structure suggested by AI:
 ```markdown
 todo-app/
