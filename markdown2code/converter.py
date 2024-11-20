@@ -126,8 +126,71 @@ class MarkdownConverter:
         if directory and not os.path.exists(directory):
             os.makedirs(directory)
 
-    def convert(self):
+    def preview(self):
+        """Preview what files will be generated without creating them."""
+        try:
+            with open(self.input_file, 'r', encoding='utf-8') as f:
+                content = f.read()
+
+            output_path = Path(self.output_dir)
+            preview_info = {
+                'directories': [],
+                'files': [],
+                'conflicts': []
+            }
+
+            # Check directory structure
+            structure_match = re.search(r'```markdown\n(.*?)\n```', content, re.DOTALL)
+            if structure_match:
+                paths = self.create_directory_structure(structure_match.group(1))
+                for path in paths:
+                    full_path = output_path / path
+                    if path.endswith('/'):
+                        preview_info['directories'].append({
+                            'path': str(full_path),
+                            'exists': full_path.exists()
+                        })
+
+            # Check files
+            files_content = self.extract_file_content(content)
+            for filename, _ in files_content.items():
+                clean_filename = filename.replace('# ', '').strip()
+                file_path = output_path / clean_filename
+                preview_info['files'].append({
+                    'path': str(file_path),
+                    'exists': file_path.exists()
+                })
+                if file_path.exists():
+                    preview_info['conflicts'].append(str(file_path))
+
+            return preview_info
+
+        except Exception as e:
+            print(f"An error occurred during preview: {str(e)}")
+            raise
+
+    def convert(self, force=False):
         """Convert markdown file to code files."""
+        preview_info = self.preview()
+        
+        # Print preview information
+        print("\nFiles to be created:")
+        for dir_info in preview_info['directories']:
+            status = "exists" if dir_info['exists'] else "will be created"
+            print(f"Directory: {dir_info['path']} ({status})")
+        
+        for file_info in preview_info['files']:
+            status = "exists" if file_info['exists'] else "will be created"
+            print(f"File: {file_info['path']} ({status})")
+        
+        if preview_info['conflicts'] and not force:
+            print("\nWarning: The following files already exist:")
+            for conflict in preview_info['conflicts']:
+                print(f"- {conflict}")
+            raise FileExistsError(
+                "Some files already exist. Use --force to overwrite or choose a different output directory."
+            )
+
         try:
             with open(self.input_file, 'r', encoding='utf-8') as f:
                 content = f.read()

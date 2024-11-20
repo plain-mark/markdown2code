@@ -10,6 +10,8 @@ Convert markdown files into organized project structures with code files. This t
 - Supports filename detection from comments
 - Handles multiple programming languages
 - Maintains file permissions (executable for shell scripts)
+- Preview mode to check files before creation
+- File conflict detection and handling
 
 ## Installation
 
@@ -24,10 +26,39 @@ Basic usage:
 markdown2code input.md
 ```
 
+Preview files to be created:
+```bash
+markdown2code input.md --preview
+```
+
 Specify output directory:
 ```bash
 markdown2code input.md --output ./my-project
 ```
+
+Force overwrite existing files:
+```bash
+markdown2code input.md --force
+```
+
+## File Conflict Handling
+
+By default, markdown2code will not overwrite existing files. When a file conflict is detected:
+
+1. In normal mode:
+   - Shows which files would be overwritten
+   - Stops execution without making changes
+   - Suggests using --force or a different output directory
+
+2. With --preview:
+   - Shows all files and directories that would be created
+   - Indicates which files already exist
+   - No changes are made to the filesystem
+
+3. With --force:
+   - Proceeds with file creation
+   - Overwrites any existing files
+   - Creates new directories as needed
 
 ## Markdown Format
 
@@ -142,7 +173,12 @@ A simple example project.
 ```
 ````
 
-Convert to project structure:
+Preview what will be created:
+```bash
+markdown2code project.md --preview --output my-project
+```
+
+Create the project structure:
 ```bash
 markdown2code project.md --output my-project
 ```
@@ -161,4 +197,4 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the Apache 2 License - see the [LICENSE](LICENSE) file for details.
