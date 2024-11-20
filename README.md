@@ -8,8 +8,7 @@
  |_| |_| |_|\__,_|_|  |_|\_\__,_|\___/ \_/\_/ |_| |_|____\___\___/ \__,_|\___|
 ```    
 
-Convert markdown files into organized project structures with code files. 
-This tool is particularly useful for converting code snippets from AI chat conversations (like ChatGPT, Claude, etc.) into actual project files.
+Convert markdown files into organized project structures with code files. This tool is particularly useful for converting code snippets from AI chat conversations (like ChatGPT, Claude, etc.) into actual project files.
 
 ## Table of Contents
 
@@ -143,11 +142,11 @@ Default file patterns for common languages:
 - HTML: index.html, main.html, app.html
 - CSS: styles.css, main.css, app.css
 - And many more...
-
 ## Command Line Options
 
-```
-markdown2code [options] input.md
+### Convert Command
+```bash
+markdown2code convert [options] input.md
 
 Options:
   --output, -o DIR    Output directory (default: current)
@@ -160,22 +159,141 @@ Options:
   --help             Show this help message
 ```
 
-## Use Cases
-
-[Previous use cases and examples content remains the same...]
-
-## Development
-
-### Development Setup
-
-1. Clone and setup:
+### Backup Commands
 ```bash
-git clone https://github.com/plain-mark/markdown2code.git
-cd markdown2code
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-pip install -e .
+# Create a backup
+markdown2code backup create [--files FILE...] [--message MESSAGE] [--directory DIR]
+
+# List all backups
+markdown2code backup list [--directory DIR]
+
+# Restore from backup
+markdown2code backup restore BACKUP_NAME [--directory DIR]
+
+# Delete a backup
+markdown2code backup delete BACKUP_NAME [--directory DIR]
+
+# Show backup information
+markdown2code backup info BACKUP_NAME [--directory DIR]
+```
+
+## Backup System
+
+The backup system uses Git to create and manage backups of your source code files.
+
+### Creating Backups
+
+Create a backup of all files:
+```bash
+markdown2code backup create --message "Before refactoring"
+```
+
+Backup specific files:
+```bash
+markdown2code backup create --files src/main.py tests/test_main.py --message "API changes"
+```
+
+### Managing Backups
+
+List available backups:
+```bash
+markdown2code backup list
+```
+
+View backup details:
+```bash
+markdown2code backup info backup_20240109_123456
+```
+
+Example output:
+```
+Backup Information:
+Branch: backup_20240109_123456
+Date: 2024-01-09 12:34:56
+Commit: a1b2c3d
+Message: Before refactoring
+Files:
+- src/main.py
+- tests/test_main.py
+```
+
+### Restoring Backups
+
+Restore from a backup:
+```bash
+markdown2code backup restore backup_20240109_123456
+```
+
+Note: Ensure your working directory is clean before restoring.
+
+### Deleting Backups
+
+Delete an old backup:
+```bash
+markdown2code backup delete backup_20240109_123456
+```
+
+### Best Practices
+
+1. Create descriptive backup messages:
+```bash
+markdown2code backup create --message "Added new API endpoints"
+```
+
+2. Backup before major changes:
+```bash
+markdown2code backup create --message "Pre-refactor backup"
+```
+
+3. Regular backups of specific files:
+```bash
+markdown2code backup create --files src/* --message "Source code backup"
+```
+
+4. Check backup status:
+```bash
+markdown2code backup list
+markdown2code backup info BACKUP_NAME
+```
+
+
+### Backup Issues
+
+1. Restore Fails
+```bash
+# Check if working directory is clean
+git status
+
+# Force clean working directory
+git reset --hard
+git clean -fd
+
+# Try restore again
+markdown2code backup restore BACKUP_NAME
+```
+
+2. Backup Creation Fails
+```bash
+# Check if git is initialized
+git status
+
+# Initialize if needed
+git init
+
+# Try backup again
+markdown2code backup create
+```
+
+3. Backup Conflicts
+```bash
+# List all backups
+markdown2code backup list
+
+# Check specific backup
+markdown2code backup info BACKUP_NAME
+
+# Delete problematic backup if needed
+markdown2code backup delete BACKUP_NAME
 ```
 
 2. Run tests:
