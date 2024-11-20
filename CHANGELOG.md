@@ -5,14 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.3.1] - 2024-11-20
+## [2.4.0] - 2024-11-20
 
-### Fixed
-- Directory structure handling in file paths
-  - Properly creates nested directories from file paths
-  - Correctly extracts paths from code block headers
-  - Fixed handling of "filename:" prefix in paths
-  - Improved directory creation before file writing
+### Added
+- Comprehensive command reference in INFO.md
+  - Complete list of all available commands
+  - Common use cases and examples
+  - Quick start guide
+  - Command descriptions and usage
+  - Backup operation examples
+  - Web interface usage guide
+
+### Changed
+- Enhanced documentation structure
+- Improved command organization
+- Better usage examples
 
 ## [2.3.0] - 2024-11-20
 
